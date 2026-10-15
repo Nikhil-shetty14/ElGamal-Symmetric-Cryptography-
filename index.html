@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#070b16">
+<title>ElGamal Cryptography Lab</title>
+<style>
+:root{
+  --bg:#070b16;--bg2:#0c1222;--card:rgba(17,25,45,.72);--line:rgba(126,153,255,.22);
+  --text:#eef3ff;--muted:#9eabc8;--primary:#7c8cff;--cyan:#38d9ff;--green:#35e39b;
+  --red:#ff6b7a;--yellow:#ffd166;--shadow:0 18px 55px rgba(0,0,0,.34);--radius:22px
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  background:
+   radial-gradient(circle at 15% 15%,rgba(124,140,255,.15),transparent 28%),
+   radial-gradient(circle at 85% 30%,rgba(56,217,255,.09),transparent 28%),
+   linear-gradient(135deg,var(--bg),var(--bg2));min-height:100vh;overflow-x:hidden
+}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:40px 40px;mask-image:linear-gradient(to bottom,#000,transparent 85%);z-index:-2}
+#particles{position:fixed;inset:0;pointer-events:none;z-index:-1;overflow:hidden}
+.particle{position:absolute;width:3px;height:3px;border-radius:50%;background:var(--cyan);opacity:.35;animation:float 12s linear infinite}
+@keyframes float{0%{transform:translateY(105vh) translateX(0);opacity:0}10%{opacity:.4}90%{opacity:.35}100%{transform:translateY(-10vh) translateX(80px);opacity:0}}
+a{color:inherit;text-decoration:none}
+.nav{position:sticky;top:0;z-index:50;background:rgba(7,11,22,.76);backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}
+.nav-inner{max-width:1180px;margin:auto;padding:13px 18px;display:flex;align-items:center;justify-content:space-between;gap:15px}
+.brand{font-weight:850;letter-spacing:.2px;display:flex;align-items:center;gap:10px}.brand-icon{font-size:24px}
+.nav-links{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.nav-links a{padding:9px 11px;border-radius:10px;color:var(--muted);font-size:13px;transition:.2s}.nav-links a:hover{color:#fff;background:rgba(124,140,255,.1)}
+.menu{display:none;background:none;border:1px solid var(--line);color:#fff;border-radius:10px;padding:8px 11px;font-size:18px}
+main{max-width:1180px;margin:auto;padding:0 18px 70px}
+section{scroll-margin-top:82px;padding:62px 0 8px}
+.hero{min-height:78vh;display:grid;place-items:center;text-align:center;padding-top:70px}
+.badge{display:inline-flex;gap:8px;align-items:center;border:1px solid rgba(56,217,255,.28);background:rgba(56,217,255,.07);padding:7px 12px;border-radius:999px;color:#b9f3ff;font-size:12px;font-weight:750;letter-spacing:.5px}
+h1{font-size:clamp(42px,8vw,78px);line-height:.98;margin:18px 0 14px;background:linear-gradient(110deg,#fff,#b9c4ff 48%,#65e6ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{max-width:700px;margin:0 auto;color:var(--muted);font-size:clamp(16px,2.2vw,20px);line-height:1.7}
+.actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:28px}
+button{border:0;cursor:pointer;color:#fff;font:inherit;font-weight:750;border-radius:13px;padding:12px 16px;transition:transform .18s,box-shadow .18s,background .18s;border:1px solid transparent}
+button:hover{transform:translateY(-2px)}button:active{transform:translateY(0) scale(.98)}
+.primary{background:linear-gradient(135deg,var(--primary),#5867ff);box-shadow:0 8px 28px rgba(88,103,255,.25)}
+.secondary{background:rgba(255,255,255,.055);border-color:var(--line)}
+.danger{background:rgba(255,107,122,.1);border-color:rgba(255,107,122,.3);color:#ffadb7}
+.section-title{margin-bottom:24px}.eyebrow{color:var(--cyan);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1.6px}.section-title h2{font-size:clamp(27px,5vw,40px);margin:7px 0}.section-title p{color:var(--muted);margin:0;line-height:1.6}
+.grid{display:grid;gap:16px}.features{grid-template-columns:repeat(3,1fr)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);backdrop-filter:blur(18px);padding:22px;position:relative;overflow:hidden}
+.card:after{content:"";position:absolute;inset:-1px;pointer-events:none;border-radius:inherit;background:linear-gradient(120deg,transparent,rgba(124,140,255,.08),transparent);transform:translateX(-100%);transition:transform .7s}.card:hover:after{transform:translateX(100%)}
+.feature-icon{font-size:28px}.card h3{margin:12px 0 7px}.card p{color:var(--muted);line-height:1.6;margin:0}
+.two{grid-template-columns:1fr 1fr}.three{grid-template-columns:repeat(3,1fr)}
+label{display:block;color:#c7d1ea;font-size:13px;font-weight:700;margin:0 0 7px}
+input,textarea,select{width:100%;background:rgba(3,7,16,.65);color:#fff;border:1px solid var(--line);outline:none;border-radius:12px;padding:12px 13px;font:inherit;transition:.2s}
+input:focus,textarea:focus{border-color:rgba(124,140,255,.8);box-shadow:0 0 0 3px rgba(124,140,255,.11)}
+textarea{min-height:145px;resize:vertical}
+.form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}.form-grid.two-col{grid-template-columns:1fr 1fr}
+.field{margin-bottom:14px}.hint{font-size:11px;color:var(--muted);margin-top:6px}
+.status{padding:11px 13px;border-radius:12px;margin-top:13px;font-size:13px;line-height:1.5;border:1px solid transparent}
+.status.ok{background:rgba(53,227,155,.08);border-color:rgba(53,227,155,.25);color:#9ff5d2}.status.err{background:rgba(255,107,122,.08);border-color:rgba(255,107,122,.25);color:#ffb4bd}.status.info{background:rgba(124,140,255,.08);border-color:rgba(124,140,255,.2);color:#c6ceff}
+.keybox{margin-top:14px;padding:15px;border-radius:15px;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.07)}
+.keyrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px dashed rgba(255,255,255,.09)}.keyrow:last-child{border-bottom:0}.keyrow span:first-child{color:var(--muted);font-size:12px}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;word-break:break-all;color:#dce5ff}
+.small-btn{padding:7px 10px;font-size:11px;border-radius:9px}
+.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
+.step-flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:16px 0}.step{padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.035);font-size:12px}.arrow{color:var(--cyan);animation:pulse 1.6s infinite}@keyframes pulse{50%{opacity:.35;transform:scale(1.08)}}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:10px;border-bottom:1px solid rgba(255,255,255,.08);white-space:nowrap}th{color:#aebbd9;font-size:11px;text-transform:uppercase;letter-spacing:.7px}td{color:#e7ecfb}.table-wrap{overflow:auto;border:1px solid rgba(255,255,255,.07);border-radius:14px;margin-top:14px}
+.eq{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:rgba(0,0,0,.25);border-left:3px solid var(--cyan);padding:11px 13px;border-radius:8px;margin:9px 0;color:#cfeeff;overflow:auto}
+.toggle{display:flex;align-items:center;gap:10px;color:#c8d2e9;font-size:13px}.toggle input{width:auto}
+.verification{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:center}.compare-box{padding:18px;border:1px solid var(--line);background:rgba(0,0,0,.18);border-radius:16px}.compare-box small{color:var(--muted)}.compare-box div{margin-top:8px;word-break:break-word}.vs{font-weight:900;color:var(--cyan)}
+.verify-result{margin-top:18px;padding:18px;border-radius:17px;text-align:center;font-weight:850;font-size:18px;border:1px solid}.success{background:rgba(53,227,155,.08);border-color:rgba(53,227,155,.3);color:#91f3ca;animation:successGlow 1.5s infinite alternate}@keyframes successGlow{to{box-shadow:0 0 28px rgba(53,227,155,.15)}}.failure{background:rgba(255,107,122,.08);border-color:rgba(255,107,122,.3);color:#ffacb6}
+.flow-diagram{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;text-align:center;padding:20px 0}.flow-node{min-width:125px;padding:17px 13px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.045);box-shadow:0 0 25px rgba(124,140,255,.08)}.flow-node strong{display:block;margin-bottom:5px}.flow-arrow{color:var(--cyan);font-size:25px;animation:pulse 1.4s infinite}
+.math-list{display:grid;gap:10px}.var{display:inline-block;padding:3px 7px;border-radius:7px;background:rgba(124,140,255,.11);color:#cdd4ff;font-family:monospace}
+.toast{position:fixed;right:18px;bottom:18px;z-index:100;padding:12px 16px;background:#10182c;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);transform:translateY(20px);opacity:0;pointer-events:none;transition:.25s}.toast.show{transform:none;opacity:1}
+.hidden{display:none!important}.footer{text-align:center;color:var(--muted);font-size:12px;padding:45px 0 10px;border-top:1px solid rgba(255,255,255,.07);margin-top:50px}
+.reveal{opacity:0;transform:translateY(18px);transition:.65s}.reveal.visible{opacity:1;transform:none}
+@media(max-width:850px){.features,.three,.two{grid-template-columns:1fr}.form-grid,.form-grid.two-col{grid-template-columns:1fr}.verification{grid-template-columns:1fr}.vs{text-align:center}.nav-links{display:none;position:absolute;left:10px;right:10px;top:64px;background:rgba(7,11,22,.96);border:1px solid var(--line);border-radius:15px;padding:8px}.nav-links.open{display:grid}.nav-links a{padding:12px}.menu{display:block}section{padding-top:46px}}
+@media(max-width:520px){main{padding:0 12px 50px}.nav-inner{padding:11px 12px}.brand{font-size:14px}.hero{min-height:72vh;padding-top:45px}h1{font-size:45px}.card{padding:17px}.actions button{width:100%}.flow-diagram{display:grid;grid-template-columns:1fr}.flow-arrow{transform:rotate(90deg)}.step-flow{display:grid;grid-template-columns:1fr}.arrow{text-align:center;transform:rotate(90deg)}}
+</style>
+</head>
+<body>
+<div id="particles"></div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="#home"><span class="brand-icon">🔐</span> ElGamal Cryptography Lab</a>
+    <button class="menu" id="menuBtn" aria-label="Open menu">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="#home">Home</a><a href="#keys">Keys</a><a href="#encrypt">Encryption</a>
+      <a href="#decrypt">Decryption</a><a href="#verify">Verification</a><a href="#algorithm">Algorithm</a><a href="#about">About</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+<section id="home" class="hero reveal">
+  <div>
+    <span class="badge">Cryptography &amp; Network Security</span>
+    <h1>ElGamal<br>Cryptography Lab</h1>
+    <p>Interactive Asymmetric Encryption &amp; Decryption. Explore public-key encryption through an interactive implementation of the ElGamal cryptosystem.</p>
+    <div class="actions">
+      <button class="primary" onclick="scrollToId('keys')">Start Experiment →</button>
+      <button class="secondary" onclick="runDemo()">▶ Run Complete Demo</button>
+    </div>
+  </div>
+</section>
+
+<section class="reveal">
+  <div class="grid features">
+    <div class="card"><div class="feature-icon">🔑</div><h3>Public Key</h3><p>Secure key-based encryption using a public key and a protected private key.</p></div>
+    <div class="card"><div class="feature-icon">∑</div><h3>Mathematical</h3><p>Learn modular arithmetic, exponentiation and the discrete-logarithm foundation.</p></div>
+    <div class="card"><div class="feature-icon">⚡</div><h3>Interactive</h3><p>Watch every encryption, decryption and verification step calculated dynamically.</p></div>
+  </div>
+</section>
+
+<section id="keys" class="reveal">
+  <div class="section-title"><span class="eyebrow">01 · Key Generation</span><h2>🔑 ElGamal Key Generation</h2><p>Choose a prime modulus, generator and private key. All cryptographic arithmetic uses JavaScript BigInt.</p></div>
+  <div class="grid two">
+    <div class="card">
+      <div class="form-grid">
+        <div class="field"><label for="p">Prime Number (p)</label><input id="p" value="467" inputmode="numeric"><div class="hint">Demo default: 467</div></div>
+        <div class="field"><label for="g">Generator (g)</label><input id="g" value="2" inputmode="numeric"><div class="hint">Must satisfy 1 &lt; g &lt; p</div></div>
+        <div class="field"><label for="x">Private Key (x)</label><input id="x" value="127" inputmode="numeric"><div class="hint">Must satisfy 1 ≤ x ≤ p−2</div></div>
+      </div>
+      <div class="toolbar">
+        <button class="secondary" onclick="randomParams()">🎲 Generate Random Parameters</button>
+        <button class="primary" onclick="generateKeys()">Generate Keys</button>
+      </div>
+      <div id="paramStatus"></div>
+    </div>
+    <div class="card">
+      <h3>Generated Keys</h3>
+      <div class="keybox">
+        <div class="keyrow"><span>Public Key</span><span class="mono" id="publicKey">Not generated</span><button class="small-btn secondary" onclick="copyText('publicKey')">Copy</button></div>
+        <div class="keyrow"><span>Private Key</span><span class="mono" id="privateKey">••••••••</span><button class="small-btn secondary" id="togglePrivate" onclick="togglePrivate()">Show</button></div>
+      </div>
+      <div class="eq">y = g<sup>x</sup> mod p</div>
+      <div class="keybox"><div class="keyrow"><span>Calculated y</span><span class="mono" id="yValue">—</span></div></div>
+      <div class="status info">⚠ Never share the private key in a real cryptographic system.</div>
+    </div>
+  </div>
+</section>
+
+<section id="encrypt" class="reveal">
+  <div class="section-title"><span class="eyebrow">02 · Encryption</span><h2>🔐 Encrypt Message</h2><p>Each character is converted to a number and encrypted independently for educational visibility.</p></div>
+  <div class="card">
+    <div class="field"><label for="plaintext">Enter plaintext</label><textarea id="plaintext" placeholder="Enter plaintext, for example HELLO">HELLO</textarea></div>
+    <label class="toggle"><input type="checkbox" id="showSteps" checked onchange="refreshSteps()"> Show Mathematical Steps</label>
+    <div class="step-flow">
+      <div class="step">Plaintext</div><span class="arrow">→</span><div class="step">Text Encoding</div><span class="arrow">→</span><div class="step">Numerical Message</div><span class="arrow">→</span><div class="step">Public Key</div><span class="arrow">→</span><div class="step">Random k</div><span class="arrow">→</span><div class="step">ElGamal</div><span class="arrow">→</span><div class="step">Ciphertext</div>
+    </div>
+    <button class="primary" onclick="encryptMessage()">Encrypt Message</button>
+    <div id="encodingOutput"></div>
+    <div id="encryptionOutput"></div>
+  </div>
+</section>
+
+<section id="decrypt" class="reveal">
+  <div class="section-title"><span class="eyebrow">03 · Decryption</span><h2>🔓 Decrypt Ciphertext</h2><p>The generated ciphertext is automatically used. Decryption recovers the message using the private key.</p></div>
+  <div class="card">
+    <div class="step-flow">
+      <div class="step">c1</div><span class="arrow">→</span><div class="step">Shared Secret</div><span class="arrow">→</span><div class="step">Modular Inverse</div><span class="arrow">→</span><div class="step">Recovered m</div><span class="arrow">→</span><div class="step">Character</div>
+    </div>
+    <button class="primary" onclick="decryptMessage()">Decrypt Ciphertext</button>
+    <button class="secondary" onclick="copyText('decryptedMessage')">Copy Decrypted Message</button>
+    <div id="decryptionOutput"></div>
+    <div class="keybox"><div class="keyrow"><span>Decrypted Message</span><span class="mono" id="decryptedMessage">—</span></div></div>
+  </div>
+</section>
+
+<section id="verify" class="reveal">
+  <div class="section-title"><span class="eyebrow">04 · Verification</span><h2>✓ Message Verification</h2><p>Compare the original plaintext with the recovered plaintext automatically.</p></div>
+  <div class="card">
+    <div class="verification">
+      <div class="compare-box"><small>Original Message</small><div class="mono" id="originalCompare">—</div></div>
+      <div class="vs">VS</div>
+      <div class="compare-box"><small>Decrypted Message</small><div class="mono" id="decryptedCompare">—</div></div>
+    </div>
+    <div id="verificationResult" class="verify-result hidden"></div>
+  </div>
+</section>
+
+<section class="reveal">
+  <div class="section-title"><span class="eyebrow">Visual Flow</span><h2>Cryptographic Data Flow</h2></div>
+  <div class="card">
+    <div class="flow-diagram">
+      <div class="flow-node"><strong>PUBLIC KEY</strong><span class="mono">(p, g, y)</span></div><div class="flow-arrow">→</div>
+      <div class="flow-node"><strong>ENCRYPTION</strong><span>Random k</span></div><div class="flow-arrow">→</div>
+      <div class="flow-node"><strong>CIPHERTEXT</strong><span>(c1, c2)</span></div><div class="flow-arrow">→</div>
+      <div class="flow-node"><strong>DECRYPTION</strong><span>Private x</span></div><div class="flow-arrow">→</div>
+      <div class="flow-node"><strong>PLAINTEXT</strong><span>Recovered</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="algorithm" class="reveal">
+  <div class="section-title"><span class="eyebrow">05 · Algorithm</span><h2>Mathematical Explanation</h2><p>Simple explanations of the ElGamal asymmetric cryptosystem.</p></div>
+  <div class="grid three">
+    <div class="card"><h3>1. Key Generation</h3><div class="eq">Choose prime p<br>Choose generator g<br>Choose private x<br><br>y = g<sup>x</sup> mod p</div><p>Public Key = (p, g, y)<br>Private Key = x</p></div>
+    <div class="card"><h3>2. Encryption</h3><div class="eq">Choose random k<br><br>c1 = g<sup>k</sup> mod p<br>c2 = m × y<sup>k</sup> mod p<br><br>Ciphertext = (c1,c2)</div><p><span class="var">m</span> is the numerical message and <span class="var">k</span> is a fresh ephemeral value.</p></div>
+    <div class="card"><h3>3. Decryption</h3><div class="eq">s = c1<sup>x</sup> mod p<br>s⁻¹ = modular inverse of s<br>m = c2 × s⁻¹ mod p</div><p>The recovered number is converted back to its original character.</p></div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h3>Variable Guide</h3>
+    <div class="math-list">
+      <div><span class="var">p</span> Prime modulus used for modular arithmetic.</div>
+      <div><span class="var">g</span> Generator/base used to create public parameters.</div>
+      <div><span class="var">x</span> Private key. It must remain secret.</div>
+      <div><span class="var">y</span> Public component calculated as g<sup>x</sup> mod p.</div>
+      <div><span class="var">k</span> Random ephemeral value used for an encryption operation.</div>
+      <div><span class="var">m</span> Numerical plaintext value.</div>
+      <div><span class="var">c1,c2</span> The two components of the ElGamal ciphertext.</div>
+    </div>
+  </div>
+</section>
+
+<section id="about" class="reveal">
+  <div class="section-title"><span class="eyebrow">06 · About</span><h2>About This Project</h2></div>
+  <div class="card">
+    <p style="line-height:1.8;color:var(--muted)">
+      <strong style="color:#fff">ElGamal Cryptography Lab</strong> is an educational, client-side demonstration of
+      <strong style="color:#bfc8ff">ElGamal Asymmetric Encryption</strong>. It demonstrates public/private keys,
+      modular exponentiation, randomized encryption, modular inverses and plaintext verification.
+      This project is designed for learning and classroom demonstration. The small default parameters are intentionally
+      educational and are <strong style="color:#ffd166">not suitable for real-world security</strong>.
+    </p>
+    <div class="toolbar">
+      <button class="secondary" onclick="copyText('publicKey')">Copy Public Key</button>
+      <button class="secondary" onclick="copyCalculation()">Copy Mathematical Calculations</button>
+      <button class="danger" onclick="resetExperiment()">↻ Reset Experiment</button>
+    </div>
+  </div>
+</section>
+
+<div class="footer"> MADE BY ⚡· ElGamal Cryptography Lab · Cryptography &amp; Network Security · Single-file educational implementation</div>
+</main>
+
+<div class="toast" id="toast">Copied to clipboard ✓</div>
+
+<script>
+
+  "use strict";
+  
+  
+  
+  /* ---------- State ---------- */
+  
+  let state = {
+  
+    p:null,g:null,x:null,y:null,
+  
+    ciphertext:[],
+  
+    plaintext:"",
+  
+    decrypted:"",
+  
+    calculations:"",
+  
+    generated:false
+  
+  };
+  
+  
+  
+  /* ---------- Utilities ---------- */
+  
+  const $ = id => document.getElementById(id);
+  
+  function setStatus(id,type,msg){ $(id).innerHTML = `<div class="status ${type}">${msg}</div>`; }
+  
+  function scrollToId(id){ document.getElementById(id).scrollIntoView({behavior:"smooth"}); }
+  
+  function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+  
+  
+  
+  function parseBigInt(value,label){
+  
+    const s=String(value).trim();
+  
+    if(!/^[0-9]+$/.test(s)) throw new Error(label+" must be a positive integer.");
+  
+    return BigInt(s);
+  
+  }
+  
+  
+  
+  /* ---------- BigInt Mathematics ---------- */
+  
+  function mod(a,m){
+  
+    const r=a%m;
+  
+    return r<0n?r+m:r;
+  
+  }
+  
+  
+  
+  function gcd(a,b){
+  
+    a=a<0n?-a:a; b=b<0n?-b:b;
+  
+    while(b!==0n){ const t=a%b; a=b; b=t; }
+  
+    return a;
+  
+  }
+  
+  
+  
+  function modPow(base,exponent,modulus){
+  
+    if(modulus<=0n) throw new Error("Modulus must be positive.");
+  
+    if(exponent<0n) throw new Error("Exponent must be non-negative.");
+  
+    base=mod(base,modulus);
+  
+    let result=1n;
+  
+    while(exponent>0n){
+  
+      if(exponent&1n) result=(result*base)%modulus;
+  
+      base=(base*base)%modulus;
+  
+      exponent>>=1n;
+  
+    }
+  
+    return result;
+  
+  }
+  
+  
+  
+  function extendedGcd(a,b){
+  
+    let oldR=a,r=b,oldS=1n,s=0n,oldT=0n,t=1n;
+  
+    while(r!==0n){
+  
+      const q=oldR/r;
+  
+      [oldR,r]=[r,oldR-q*r];
+  
+      [oldS,s]=[s,oldS-q*s];
+  
+      [oldT,t]=[t,oldT-q*t];
+  
+    }
+  
+    return {g:oldR,x:oldS,y:oldT};
+  
+  }
+  
+  
+  
+  function modInverse(a,m){
+  
+    a=mod(a,m);
+  
+    const e=extendedGcd(a,m);
+  
+    if(e.g!==1n) throw new Error("Modular inverse does not exist.");
+  
+    return mod(e.x,m);
+  
+  }
+  
+  
+  
+  /* Deterministic enough for educational primes; trial division is intentionally transparent. */
+  
+  function isPrime(n){
+  
+    if(n<2n)return false;
+  
+    if(n===2n)return true;
+  
+    if(n%2n===0n)return false;
+  
+    if(n%3n===0n)return n===3n;
+  
+    let i=5n;
+  
+    while(i*i<=n){
+  
+      if(n%i===0n || n%(i+2n)===0n)return false;
+  
+      i+=6n;
+  
+    }
+  
+    return true;
+  
+  }
+  
+  
+  
+  function randomBigInt(min,max){
+  
+    min=BigInt(min);max=BigInt(max);
+  
+    if(max<min)throw new Error("Invalid random range.");
+  
+    const range=max-min+1n;
+  
+    if(typeof crypto!=="undefined" && crypto.getRandomValues){
+  
+      const bits=range.toString(2).length;
+  
+      const bytes=Math.ceil(bits/8);
+  
+      const arr=new Uint8Array(bytes);
+  
+      let r;
+  
+      do{
+  
+        crypto.getRandomValues(arr);
+  
+        r=0n;
+  
+        for(const b of arr)r=(r<<8n)|BigInt(b);
+  
+        const excess=BigInt(bytes*8-bits);
+  
+        if(excess>0n)r=r>>(excess);
+  
+      }while(r>=range);
+  
+      return min+r;
+  
+    }
+  
+    return min+BigInt(Math.floor(Math.random()*Number(range)));
+  
+  }
+  
+  
+  
+  function findGenerator(p){
+  
+    /* Finds a primitive root for the small demonstration prime p. */
+  
+    const phi=p-1n;
+  
+    const factors=[];
+  
+    let n=phi;
+  
+    for(let d=2n;d*d<=n;d+=(d===2n?1n:2n)){
+  
+      if(n%d===0n){
+  
+        factors.push(d);
+  
+        while(n%d===0n)n/=d;
+  
+      }
+  
+    }
+  
+    if(n>1n)factors.push(n);
+  
+    for(let g=2n;g<p;g++){
+  
+      let ok=true;
+  
+      for(const q of factors){
+  
+        if(modPow(g,phi/q,p)===1n){ok=false;break;}
+  
+      }
+  
+      if(ok)return g;
+  
+    }
+  
+    return 2n;
+  
+  }
+  
+  
+  
+  /* ---------- Validation / Keys ---------- */
+  
+  function readParams(){
+  
+    const p=parseBigInt($("p").value,"p");
+  
+    const g=parseBigInt($("g").value,"g");
+  
+    const x=parseBigInt($("x").value,"x");
+  
+    if(p<=2n || !isPrime(p)) throw new Error("p must be a prime number greater than 2.");
+  
+    if(g<=1n || g>=p) throw new Error("Generator g must satisfy 1 < g < p.");
+  
+    if(x<1n || x>p-2n) throw new Error("Private key x must satisfy 1 ≤ x ≤ p−2.");
+  
+    return {p,g,x};
+  
+  }
+  
+  
+  
+  function generateKeys(){
+  
+    try{
+  
+      const {p,g,x}=readParams();
+  
+      const y=modPow(g,x,p);
+  
+      state={...state,p,g,x,y,ciphertext:[],plaintext:"",decrypted:"",calculations:"",generated:true};
+  
+      $("publicKey").textContent=`(${p}, ${g}, ${y})`;
+  
+      $("privateKey").textContent="••••••••";
+  
+      $("togglePrivate").textContent="Show";
+  
+      $("yValue").textContent=y.toString();
+  
+      $("decryptedMessage").textContent="—";
+  
+      $("originalCompare").textContent="—";
+  
+      $("decryptedCompare").textContent="—";
+  
+      $("verificationResult").className="verify-result hidden";
+  
+      $("encodingOutput").innerHTML="";
+  
+      $("encryptionOutput").innerHTML="";
+  
+      $("decryptionOutput").innerHTML="";
+  
+      setStatus("paramStatus","ok","✓ Valid prime number. Parameters accepted and public/private keys generated.");
+  
+    }catch(e){setStatus("paramStatus","err","❌ "+e.message);state.generated=false;}
+  
+  }
+  
+  
+  
+  function randomParams(){
+  
+    try{
+  
+      /* Educational range keeps primality checking fast in a browser. */
+  
+      const primes=[257n,263n,269n,271n,277n,281n,283n,293n,307n,311n,313n,317n,331n,337n,347n,349n,353n,359n,367n,373n,379n,383n,389n,397n,401n,409n,419n,421n,431n,433n,439n,443n,449n,457n,461n,463n,467n,479n,487n,491n,499n,503n,509n,521n,523n,541n,547n,557n,563n,569n,571n,577n,587n,593n,599n,601n,607n,613n,617n,619n,631n,641n,643n,647n,653n,659n,661n,673n,677n,683n,691n,701n,709n,719n,727n,733n,739n,743n,751n,757n,761n,769n,773n,787n,797n,809n,811n,821n,823n,827n,829n,839n,853n,857n,859n,863n,877n,881n,883n,887n,907n,911n,919n,929n,937n,941n,947n,953n,967n,971n,977n,983n,991n,997n];
+  
+      const p=primes[Math.floor(Math.random()*primes.length)];
+  
+      const g=findGenerator(p);
+  
+      const x=randomBigInt(1n,p-2n);
+  
+      $("p").value=p.toString();$("g").value=g.toString();$("x").value=x.toString();
+  
+      generateKeys();
+  
+      setStatus("paramStatus","ok",`🎲 Random valid parameters generated: p=${p}, g=${g}, x=${x}.`);
+  
+    }catch(e){setStatus("paramStatus","err","❌ "+e.message);}
+  
+  }
+  
+  
+  
+  function togglePrivate(){
+  
+    if(!state.generated){setStatus("paramStatus","err","Generate keys first.");return;}
+  
+    const b=$("togglePrivate");
+  
+    if(b.textContent==="Show"){ $("privateKey").textContent=state.x.toString();b.textContent="Hide"; }
+  
+    else{ $("privateKey").textContent="••••••••";b.textContent="Show"; }
+  
+  }
+  
+  
+  
+  /* ---------- Encoding / Encryption ---------- */
+  
+  function encodeText(text){
+  
+    const arr=[];
+  
+    for(const ch of text)arr.push({ch,m:BigInt(ch.codePointAt(0))});
+  
+    return arr;
+  
+  }
+  
+  
+  
+  function encryptMessage(){
+  
+    try{
+  
+      if(!state.generated) throw new Error("Generate valid keys before encryption.");
+  
+      const text=$("plaintext").value;
+  
+      if(!text.trim()) throw new Error("Plaintext cannot be empty.");
+  
+      const encoded=encodeText(text);
+  
+      const tooLarge=encoded.find(v=>v.m>=state.p);
+  
+      if(tooLarge) throw new Error("Message value is greater than or equal to p. Please use a larger prime number.");
+  
+      state.plaintext=text;state.ciphertext=[];state.calculations="";
+  
+      let rows="";
+  
+      for(const item of encoded){
+  
+        const k=randomBigInt(1n,state.p-2n);
+  
+        const c1=modPow(state.g,k,state.p);
+  
+        const yk=modPow(state.y,k,state.p);
+  
+        const c2=(item.m*yk)%state.p;
+  
+        state.ciphertext.push({ch:item.ch,m:item.m,k,c1,c2});
+  
+        state.calculations+=`Character ${JSON.stringify(item.ch)}: m=${item.m}, k=${k}, c1=${state.g}^${k} mod ${state.p} = ${c1}, c2=${item.m} × ${state.y}^${k} mod ${state.p} = ${c2}\\\n`;
+  
+        rows+=`<tr><td>${escapeHtml(item.ch)}</td><td>${item.m}</td><td>${k}</td><td>${c1}</td><td>${c2}</td></tr>`;
+  
+      }
+  
+      $("originalCompare").textContent=text;
+  
+      $("encodingOutput").innerHTML=`
+  
+        <div class="keybox"><h3>Text Encoding</h3>
+  
+        <div class="table-wrap"><table><thead><tr><th>Character</th><th>Numeric Value</th></tr></thead><tbody>
+  
+        ${encoded.map(v=>`<tr><td>${escapeHtml(v.ch)}</td><td>${v.m}</td></tr>`).join("")}
+  
+        </tbody></table></div></div>`;
+  
+      const cipherText=formatCiphertext();
+  
+      $("encryptionOutput").innerHTML=`
+  
+        <div class="keybox">
+  
+         <h3>Ciphertext Table</h3>
+  
+         <div class="table-wrap"><table><thead><tr><th>Character</th><th>m</th><th>k</th><th>c1</th><th>c2</th></tr></thead><tbody>${rows}</tbody></table></div>
+  
+         <div class="eq">Ciphertext = ${escapeHtml(cipherText)}</div>
+  
+         <div class="toolbar"><button class="secondary" onclick="copyValue('${escapeAttr(cipherText)}')">Copy Ciphertext</button></div>
+  
+         ${showStepsHtml()}
+  
+        </div>`;
+  
+      showToast("✓ Encryption completed using ElGamal mathematics.");
+  
+      scrollToId("decrypt");
+  
+    }catch(e){setStatus("encryptionOutput","err","❌ "+e.message);}
+  
+  }
+  
+  
+  
+  function showStepsHtml(){
+    if(!$('showSteps').checked)return '';
+    return `<div class="keybox math-steps"><h3>🔐 Step-by-Step Encryption</h3>${state.ciphertext.map((v,i)=>{
+      const yk=modPow(state.y,v.k,state.p);
+      return `<div class="eq"><strong>Character ${i+1}: ${escapeHtml(v.ch)}</strong><br><br>
+      Step 1 — Numeric message: m = ${v.m}<br>
+      Step 2 — Random ephemeral key: k = ${v.k}<br><br>
+      Step 3 — Calculate c1:<br>
+      c1 = g<sup>k</sup> mod p<br>
+      c1 = ${state.g}<sup>${v.k}</sup> mod ${state.p}<br>
+      <strong>c1 = ${v.c1}</strong><br><br>
+      Step 4 — Calculate c2:<br>
+      c2 = m × y<sup>k</sup> mod p<br>
+      y<sup>k</sup> mod p = ${state.y}<sup>${v.k}</sup> mod ${state.p} = ${yk}<br>
+      c2 = ${v.m} × ${yk} mod ${state.p}<br>
+      <strong>c2 = ${v.c2}</strong><br><br>
+      Step 5 — Ciphertext: <strong>(${v.c1}, ${v.c2})</strong></div>`;
+    }).join('')}</div>`;
+  }
+  function refreshSteps(){
+    const box=$('encryptionOutput').querySelector('.keybox');
+    if(!box)return;
+    box.querySelector('.math-steps')?.remove();
+    if($('showSteps').checked)box.insertAdjacentHTML('beforeend',showStepsHtml());
+  }
+  function formatCiphertext(){
+  
+    return "["+state.ciphertext.map(v=>`(${v.c1},${v.c2})`).join(",")+"]";
+  
+  }
+  
+  
+  
+  /* ---------- Decryption ---------- */
+  
+  function decryptMessage(){
+  
+    try{
+  
+      if(!state.generated)throw new Error("Generate keys first.");
+  
+      if(!state.ciphertext.length)throw new Error("Encrypt a message first.");
+  
+      let out="", html="";
+  
+      for(const v of state.ciphertext){
+  
+        const s=modPow(v.c1,state.x,state.p);
+  
+        const inv=modInverse(s,state.p);
+  
+        const m=(v.c2*inv)%state.p;
+  
+        if(m!==v.m) throw new Error("Decryption verification failed for a ciphertext pair.");
+  
+        const ch=String.fromCodePoint(Number(m));
+  
+        out+=ch;
+  
+        html+=`<div class="eq">c1 = ${v.c1}<br>s = c1<sup>x</sup> mod p = ${v.c1}<sup>${state.x}</sup> mod ${state.p} = ${s}<br>s⁻¹ mod p = ${inv}<br>m = c2 × s⁻¹ mod p = ${v.c2} × ${inv} mod ${state.p} = ${m}<br>character = ${escapeHtml(ch)}</div>`;
+  
+      }
+  
+      state.decrypted=out;
+  
+      $("decryptedMessage").textContent=out;
+  
+      $("decryptedCompare").textContent=out;
+  
+      $("decryptionOutput").innerHTML=`<div class="keybox"><h3>Decryption Steps</h3>${$("showSteps").checked?html:"<div class='status info'>Mathematical steps are hidden. Enable “Show Mathematical Steps” to display them.</div>"}</div>`;
+  
+      verify();
+  
+    }catch(e){setStatus("decryptionOutput","err","❌ "+e.message);}
+  
+  }
+  
+  
+  
+  /* ---------- Verification ---------- */
+  
+  function verify(){
+  
+    if(!state.plaintext || !state.decrypted)return;
+  
+    const box=$("verificationResult");
+  
+    box.classList.remove("hidden");
+  
+    if(state.plaintext===state.decrypted){
+  
+      box.className="verify-result success";
+  
+      box.innerHTML="✓ VERIFICATION SUCCESSFUL<br><small>Original plaintext and decrypted plaintext are identical.</small>";
+  
+    }else{
+  
+      box.className="verify-result failure";
+  
+      box.innerHTML="✗ VERIFICATION FAILED<br><small>The plaintext values are different.</small>";
+  
+    }
+  
+  }
+  
+  
+  
+  /* ---------- Demo ---------- */
+  
+  async function runDemo(){
+  
+    scrollToId("keys");
+  
+    await sleep(350);
+  
+    $("p").value="467";$("g").value="2";$("x").value="127";
+  
+    generateKeys();
+  
+    await sleep(550);
+  
+    $("plaintext").value="HELLO";
+  
+    scrollToId("encrypt");
+  
+    await sleep(450);
+  
+    encryptMessage();
+  
+    await sleep(650);
+  
+    scrollToId("decrypt");
+  
+    await sleep(350);
+  
+    decryptMessage();
+  
+    await sleep(700);
+  
+    scrollToId("verify");
+  
+    setStatus("verificationResult","ok","✓ ElGamal Demonstration Completed Successfully");
+  
+    const box=$("verificationResult");
+  
+    box.className="verify-result success";
+  
+    box.innerHTML="✓ ElGamal Demonstration Completed Successfully<br><small>Keys → Encoding → Encryption → Decryption → Verification</small>";
+  
+  }
+  
+  
+  
+  /* ---------- Clipboard ---------- */
+  
+  async function copyValue(value){
+  
+    try{await navigator.clipboard.writeText(value);showToast("Copied to clipboard ✓");}
+  
+    catch(e){fallbackCopy(value);}
+  
+  }
+  
+  async function copyText(id){
+  
+    const el=$(id);
+  
+    if(!el)return;
+  
+    const value=el.textContent;
+  
+    if(!value || value==="Not generated" || value==="••••••••" || value==="—"){showToast("Nothing to copy");return;}
+  
+    await copyValue(value);
+  
+  }
+  
+  function copyCalculation(){copyValue(state.calculations||"Generate and encrypt a message first.");}
+  
+  function fallbackCopy(text){
+  
+    const ta=document.createElement("textarea");ta.value=text;document.body.appendChild(ta);ta.select();
+  
+    try{document.execCommand("copy");showToast("Copied to clipboard ✓");}catch(e){showToast("Copy unavailable");}
+  
+    ta.remove();
+  
+  }
+  
+  function showToast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.classList.remove("show"),1800)}
+  
+  function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+  
+  function escapeAttr(s){return String(s).replace(/\\\\/g,"\\\\\\\\").replace(/'/g,"&#39;");}
+  
+  
+  
+  /* ---------- Reset ---------- */
+  
+  function resetExperiment(){
+  
+    state={p:null,g:null,x:null,y:null,ciphertext:[],plaintext:"",decrypted:"",calculations:"",generated:false};
+  
+    $("p").value="467";$("g").value="2";$("x").value="127";$("plaintext").value="HELLO";
+  
+    $("publicKey").textContent="Not generated";$("privateKey").textContent="••••••••";$("togglePrivate").textContent="Show";$("yValue").textContent="—";
+  
+    $("decryptedMessage").textContent="—";$("originalCompare").textContent="—";$("decryptedCompare").textContent="—";
+  
+    $("paramStatus").innerHTML="";$("encodingOutput").innerHTML="";$("encryptionOutput").innerHTML="";$("decryptionOutput").innerHTML="";
+  
+    $("verificationResult").className="verify-result hidden";showToast("Experiment reset");
+  
+  }
+  
+  
+  
+  /* ---------- UI ---------- */
+  
+  $("menuBtn").addEventListener("click",()=> $("navLinks").classList.toggle("open"));
+  
+  document.querySelectorAll(".nav-links a").forEach(a=>a.addEventListener("click",()=> $("navLinks").classList.remove("open")));
+  
+  
+  
+  const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add("visible")}),{threshold:.08});
+  
+  document.querySelectorAll(".reveal").forEach(el=>observer.observe(el));
+  
+  
+  
+  function makeParticles(){
+  
+    const box=$("particles");
+  
+    for(let i=0;i<38;i++){
+  
+      const p=document.createElement("span");p.className="particle";
+  
+      p.style.left=Math.random()*100+"%";p.style.animationDelay=(-Math.random()*12)+"s";p.style.animationDuration=(8+Math.random()*10)+"s";
+  
+      p.style.opacity=(.15+Math.random()*.35).toFixed(2);box.appendChild(p);
+  
+    }
+  
+  }
+  
+  makeParticles();
+  
+  
+  
+  /* Initial key generation for an immediately usable demo. */
+  
+  window.addEventListener("load",()=>generateKeys());
+  
+  </script>
+  
+  </body>
+  
+  </html>
+  
